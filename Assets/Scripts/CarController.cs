@@ -32,7 +32,7 @@ public class CarController : MonoBehaviour
     [Header("Car Settings"), Space(7)]
     [Tooltip("The amount of offset to apply to the rigidbody center of mass.")]
     [SerializeField] private Vector3 _centerOfMassOffset;
-    [Tooltip("How far the wheels can turn.")]
+    [Tooltip("How far the wheels can turn."), Range(20f, 35f)]
     [SerializeField] private float _maximumSteerAngle;
     [Tooltip("How much torque to add to the drive wheels when moving forward.")]
     [SerializeField] private float _fullTorqueOverAllWheels;
@@ -44,7 +44,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float _topSpeed = 200.0f;
     [Tooltip("The limit of the rev range.")]
     [SerializeField] private float _revRangeBoundary = 1f;
-    [Tooltip("How much slip until wheel effects start playing.")]
+    [Tooltip("How much slip until wheel effects start playing."), Range(0.1f, 1f)]
     [SerializeField] private float _slipLimit;
     [Tooltip("How much force will be used to apply the brakes")]
     [SerializeField] private float _brakeTorque;
@@ -73,6 +73,7 @@ public class CarController : MonoBehaviour
     private Vector2 _currentInputVector;
     private Vector2 _smoothInputVelocity;
     private int _emissionPropertyId;
+    private float _currentMaxSteerAngle;
 
     public bool Skidding { get; private set; }
     public float BrakeInput { get; private set; }
@@ -156,7 +157,7 @@ public class CarController : MonoBehaviour
         BrakeInput = footBrake = -1 * Mathf.Clamp(footBrake, -1, 0);
         handBrake = Mathf.Clamp(handBrake, 0, 1);
 
-        _steerAngle = steering * _maximumSteerAngle;
+        _steerAngle = steering * _currentMaxSteerAngle;
         wheelColliders[0].steerAngle = _steerAngle;
         wheelColliders[1].steerAngle = _steerAngle;
 
@@ -183,6 +184,13 @@ public class CarController : MonoBehaviour
         CheckForWheelSpin();
         TractionControl();
         AntiRoll();
+        SetSteerAngle();
+
+        //for (int i = 0; i < wheelColliders.Length; i++)
+        //{
+        //    wheelColliders[i].GetGroundHit(out WheelHit hit);
+        //    Debug.Log(wheelColliders[i].name + ": " + hit.sidewaysSlip / wheelColliders[i].sidewaysFriction.extremumSlip);
+        //}
     }
 
     private void CapSpeed()
@@ -193,7 +201,7 @@ public class CarController : MonoBehaviour
             case SpeedType.MPH:
                 speed *= 2.23693629f;
                 if (speed > _topSpeed)
-                    _rigidbody.velocity = (-_topSpeed / 2.23693629f) * _rigidbody.velocity.normalized;
+                    _rigidbody.velocity = (_topSpeed / 2.23693629f) * _rigidbody.velocity.normalized;
                 break;
 
             case SpeedType.KPH:
@@ -341,7 +349,7 @@ public class CarController : MonoBehaviour
                 continue;
             }
 
-            if (_wheelEffects[i].isPlayingAudio)
+            if (_wheelEffects[i].IsPlayingAudio)
                 _wheelEffects[i].StopAudio();
 
             _wheelEffects[i].EndSkidTrail();
@@ -397,7 +405,7 @@ public class CarController : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
-            if (_wheelEffects[i].isPlayingAudio)
+            if (_wheelEffects[i].IsPlayingAudio)
             {
                 return true;
             }
@@ -429,5 +437,21 @@ public class CarController : MonoBehaviour
     private void TurnReverseLightsOff()
     {
         _reverseLightMeshRenderer.material.SetColor(_emissionPropertyId, Color.black);
+    }
+
+    private void SetSteerAngle()
+    {
+        if (CurrentSpeed < 25f)
+        {
+            _currentMaxSteerAngle = Mathf.MoveTowards(_currentMaxSteerAngle, _maximumSteerAngle, 0.5f);
+        }
+        else if (CurrentSpeed > 25f && CurrentSpeed < 60f)
+        {
+            _currentMaxSteerAngle = Mathf.MoveTowards(_currentMaxSteerAngle, _maximumSteerAngle / 1.5f, 0.5f);
+        }
+        else if (CurrentSpeed > 60)
+        {
+            _currentMaxSteerAngle = Mathf.MoveTowards(_currentMaxSteerAngle, _maximumSteerAngle / 2f, 0.5f);
+        }
     }
 }

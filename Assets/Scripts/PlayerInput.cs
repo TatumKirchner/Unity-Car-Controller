@@ -7,6 +7,7 @@ public class PlayerInput : MonoBehaviour
 {
     private PlayerControls _playerControls;
     private CarController _carController;
+    private ResetCar _resetCar;
 
     public float accel;
     public float handBrake;
@@ -20,8 +21,10 @@ public class PlayerInput : MonoBehaviour
         //_playerControls.Player.Accelerate.performed += PlayerControls_Accelerate;
         //_playerControls.Player.HandBrake.performed += PlayerControls_HandBrake;
         //_playerControls.Player.Turn.performed += PlayerControls_Turn;
+        _playerControls.Player.Reset.performed += RespawnCar;
 
         _carController = GetComponent<CarController>();
+        _resetCar = GetComponent<ResetCar>();
     }
 
     private void Update()
@@ -49,5 +52,10 @@ public class PlayerInput : MonoBehaviour
     private void PlayerControls_Turn(InputAction.CallbackContext context)
     {
         turn = context.ReadValue<float>();
+    }
+
+    private void RespawnCar(InputAction.CallbackContext context)
+    {
+        _resetCar.Respawn();
     }
 }

@@ -10,8 +10,8 @@ public class WheelEffects : MonoBehaviour
     [SerializeField] private Transform skidTrailPf;
     [SerializeField] private ParticleSystem skidParticles;
     [SerializeField] private float _skidTrailOffset = 0.1f;
-    public bool isSkidding { get; private set; }
-    public bool isPlayingAudio { get; private set; }
+    public bool IsSkidding { get; private set; }
+    public bool IsPlayingAudio { get; private set; }
 
     private AudioSource _audioSource;
     private Transform _skidTrail;
@@ -32,7 +32,7 @@ public class WheelEffects : MonoBehaviour
 
         _wheelCollider = GetComponent<WheelCollider>();
         _audioSource = GetComponent<AudioSource>();
-        isPlayingAudio = false;
+        IsPlayingAudio = false;
 
         if (skidTrailsDetachedParent == null)
             skidTrailsDetachedParent = new GameObject("SkidTrails - Detached").transform;
@@ -42,25 +42,25 @@ public class WheelEffects : MonoBehaviour
     {
         skidParticles.transform.position = transform.position - transform.up * _wheelCollider.radius;
         skidParticles.Emit(1);
-        if (!isSkidding)
+        if (!IsSkidding)
             StartCoroutine(StartSkidTrail());
     }
 
     public void PlayAudio()
     {
         _audioSource.Play();
-        isPlayingAudio = true;
+        IsPlayingAudio = true;
     }
 
     public void StopAudio()
     {
         _audioSource.Stop();
-        isPlayingAudio = false;
+        IsPlayingAudio = false;
     }
 
     public IEnumerator StartSkidTrail()
     {
-        isSkidding = true;
+        IsSkidding = true;
         _skidTrail = Instantiate(skidTrailPf);
         while (_skidTrail == null)
         {
@@ -72,9 +72,9 @@ public class WheelEffects : MonoBehaviour
 
     public void EndSkidTrail()
     {
-        if (!isSkidding)
+        if (!IsSkidding)
             return;
-        isSkidding = false;
+        IsSkidding = false;
         _skidTrail.parent = skidTrailsDetachedParent;
         Destroy(_skidTrail.gameObject, 10f);
     }
