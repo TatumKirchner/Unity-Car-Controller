@@ -19,8 +19,6 @@ public class WheelEffects : MonoBehaviour
 
     private void Start()
     {
-        //skidParticles = transform.root.GetComponentInChildren<ParticleSystem>();
-
         if (skidParticles == null)
         {
             Debug.LogWarning("No smoke particle system found on car", gameObject);

@@ -80,10 +80,12 @@ public class LightProbeGenEditor : Editor
         {
 			Undo.RecordObject(target, "Change Bounds");
 
-			Bounds newBounds = new Bounds();
-			newBounds.center = _boundsHandle.center;
-			newBounds.size = _boundsHandle.size;
-			gen.LightProbeVolumes.ProbeVolume.center = newBounds.center;
+            Bounds newBounds = new Bounds
+            {
+                center = _boundsHandle.center,
+                size = _boundsHandle.size
+            };
+            gen.LightProbeVolumes.ProbeVolume.center = newBounds.center;
 			gen.LightProbeVolumes.ProbeVolume.extents = newBounds.extents;
         }
 	}

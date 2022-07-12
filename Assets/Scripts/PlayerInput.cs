@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,18 +12,25 @@ public class PlayerInput : MonoBehaviour
     public float handBrake;
     public float turn;
 
+    public bool isPaused = false;
+
+    public static Action<bool> OnPause;
+
     private void Awake()
     {
         _playerControls = new PlayerControls();
         _playerControls.Player.Enable();
-
-        //_playerControls.Player.Accelerate.performed += PlayerControls_Accelerate;
-        //_playerControls.Player.HandBrake.performed += PlayerControls_HandBrake;
-        //_playerControls.Player.Turn.performed += PlayerControls_Turn;
-        _playerControls.Player.Reset.performed += RespawnCar;
+        _playerControls.Player.Reset.performed += _ => _resetCar.Respawn();
+        _playerControls.Player.Pause.performed += Pause_performed;
 
         _carController = GetComponent<CarController>();
         _resetCar = GetComponent<ResetCar>();
+    }
+
+    private void Pause_performed(InputAction.CallbackContext context)
+    {
+        isPaused = !isPaused;
+        OnPause?.Invoke(isPaused);
     }
 
     private void Update()
@@ -37,25 +43,5 @@ public class PlayerInput : MonoBehaviour
     private void FixedUpdate()
     {
         _carController.Move(turn, accel, accel, handBrake);
-    }
-
-    private void PlayerControls_Accelerate(InputAction.CallbackContext context)
-    {
-        accel = context.ReadValue<float>();
-    }
-
-    private void PlayerControls_HandBrake(InputAction.CallbackContext context)
-    {
-        handBrake = context.ReadValue<float>();
-    }
-
-    private void PlayerControls_Turn(InputAction.CallbackContext context)
-    {
-        turn = context.ReadValue<float>();
-    }
-
-    private void RespawnCar(InputAction.CallbackContext context)
-    {
-        _resetCar.Respawn();
     }
 }

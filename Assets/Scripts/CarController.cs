@@ -185,12 +185,6 @@ public class CarController : MonoBehaviour
         TractionControl();
         AntiRoll();
         SetSteerAngle();
-
-        //for (int i = 0; i < wheelColliders.Length; i++)
-        //{
-        //    wheelColliders[i].GetGroundHit(out WheelHit hit);
-        //    Debug.Log(wheelColliders[i].name + ": " + hit.sidewaysSlip / wheelColliders[i].sidewaysFriction.extremumSlip);
-        //}
     }
 
     private void CapSpeed()
@@ -329,7 +323,8 @@ public class CarController : MonoBehaviour
 
     private void AddDownForce()
     {
-        _rigidbody.AddForce(_downForce * _rigidbody.velocity.magnitude * -transform.up);
+        if (_downForce > 0)
+            _rigidbody.AddForce(_downForce * _rigidbody.velocity.magnitude * -transform.up);
     }
 
     private void CheckForWheelSpin()
